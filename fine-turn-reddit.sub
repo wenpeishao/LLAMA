@@ -1,0 +1,45 @@
+# HTCondor submit file for training keyboard detection
+# Use the Docker universe
+universe = docker
+
+# Specify your Docker image
+docker_image = wshao33/reddit-llama-docker:latest 
+
+# Specify the shell script as the executable
+executable = ./run.sh
+
+# Log, error, and output files
+log = fine-turn-reddit$(Cluster)_$(Process).log
+error = fine-turn-reddit.sub_$(Cluster)_$(Process).err
+output = fine-turn-reddit.sub_$(Cluster)_$(Process).out
+
+# Email notifications
+notification = Complete
+notify_user = wshao33@wisc.edu
+
+# Request resources
+
+# Request resources
+request_gpus = 1
++WantGPULab = true
++GPUJobLength = "long"
+request_cpus = 10
+request_memory = 256GB        
+request_disk = 150GB            
+
+# Require execute servers that can access /staging
+Requirements = (Target.HasCHTCStaging == true)
+
+
+
++DockerVolumes = "/staging/wshao33:/staging/wshao33:ro"
+
+# Specify input files (exclude staged large files)
+transfer_input_files = reddit_llama.py, run.sh
+
+# Ensure the output files are transferred back after the job completes
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT_OR_EVICT
+
+# Submit a single job
+queue
